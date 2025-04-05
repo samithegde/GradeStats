@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Grade Stats Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+</head>
+<body class="p-6 text-gray-900">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const GradeInput = ({ index, grade, program, boostType, onGradeChange, onProgramChange, onBoostChange }) => (
+      <div className="flex flex-wrap gap-4 items-center mb-4">
+        <input
+          type="number"
+          className="symbolab-input border p-2 rounded"
+          value={grade}
+          onChange={(e) => onGradeChange(index, e.target.value)}
+          placeholder="Grade"
+        />
+        <select
+          className="symbolab-select border p-2 rounded"
+          value={program}
+          onChange={(e) => onProgramChange(index, e.target.value)}
+        >
+          <option value="ap">AP</option>
+          <option value="ib">IB</option>
+          <option value="destreamed">Destreamed</option>
+          <option value="open">Open</option>
+        </select>
+        {(program === "ap" || program === "ib") && (
+          <select
+            className="symbolab-select border p-2 rounded"
+            value={boostType}
+            onChange={(e) => onBoostChange(index, e.target.value)}
+          >
+            <option value="pre">Pre-boost</option>
+            <option value="post">Post-boost</option>
+          </select>
+        )}
+      </div>
+    );
+
+    function App() {
+      const [grades, setGrades] = useState([{ grade: "", program: "destreamed", boostType: "pre" }]);
+      const [showResults, setShowResults] = useState(false);
+
+      const handleAddGrade = () => {
+        setGrades([...grades, { grade: "", program: "destreamed", boostType: "pre" }]);
+      };
+
+      const handleClearGrades = () => {
+        setGrades([{ grade: "", program: "destreamed", boostType: "pre" }]);
+      };
+
+      const handleGradeChange = (index, value) => {
+        const newGrades = [...grades];
+        newGrades[index].grade = value;
+        setGrades(newGrades);
+      };
+
+      const handleProgramChange = (index, value) => {
+        const newGrades = [...grades];
+        newGrades[index].program = value;
+        if (value === "ap" || value === "ib") {
+          newGrades[index].boostType = "pre";
+        } else {
+          delete newGrades[index].boostType;
+        }
+        setGrades(newGrades);
+      };
+
+      const handleBoostChange = (index, value) => {
+        const newGrades = [...grades];
+        newGrades[index].boostType = value;
+        setGrades(newGrades);
+      };
+
+      const convertToGPA = (grade, scale = 4.0) => {
+        if (grade >= 90) return scale;
+        if (grade >= 80) return scale - 1.0;
+        if (grade >= 70) return scale - 2.0;
+        if (grade >= 60) return scale - 3.0;
+        if (grade >= 50) return scale - 4.0;
+        return 0.0;
+      };
+
+      const calculateStats = () => {
+        const validGrades = grades
+          .map((g) => ({ ...g, grade: parseFloat(g.grade) }))
+          .filter((g) => !isNaN(g.grade));
+
+        const processedGrades = validGrades.map((g) => {
+          let grade = g.grade;
+          let scale = 4.0;
+          if ((g.program === "ap" || g.program === "ib") && g.boostType === "pre") {
+            grade *= 1.05;
+            scale = 5.0;
+          }
+          return { ...g, grade, scale };
+        });
+
+        const totalAverage =
+          processedGrades.reduce((sum, g) => sum + g.grade, 0) / processedGrades.length;
+
+        const top6Average =
+          processedGrades
+            .sort((a, b) => b.grade - a.grade)
+            .slice(0, 6)
+            .reduce((sum, g) => sum + g.grade, 0) / Math.min(processedGrades.length, 6);
+
+        const unweightedGPA =
+          processedGrades.reduce((sum, g) => sum + convertToGPA(g.grade, 4.0), 0) / processedGrades.length;
+
+        const weightedGPA =
+          processedGrades.reduce((sum, g) => sum + convertToGPA(g.grade, g.scale), 0) / processedGrades.length;
+
+        const mode = (() => {
+          const freq = {};
+          processedGrades.forEach(g => {
+            const val = Math.round(g.grade);
+            freq[val] = (freq[val] || 0) + 1;
+          });
+          const entries = Object.entries(freq);
+          const max = Math.max(...entries.map(e => e[1]));
+          const modes = entries.filter(e => e[1] === max);
+          return modes.length === entries.length ? "No mode" : modes.map(e => e[0]).join(", ");
+        })();
+
+        const sortedGrades = processedGrades.map(g => g.grade).sort((a, b) => a - b);
+        const median = (() => {
+          const mid = Math.floor(sortedGrades.length / 2);
+          return sortedGrades.length % 2 !== 0
+            ? sortedGrades[mid]
+            : (sortedGrades[mid - 1] + sortedGrades[mid]) / 2;
+        })();
+
+        const highest = Math.max(...sortedGrades);
+        const lowest = Math.min(...sortedGrades);
+
+        return { totalAverage, top6Average, unweightedGPA, weightedGPA, mode, median, highest, lowest };
+      };
+
+      const stats = calculateStats();
+
+      return (
+        <div className="symbolab-card max-w-2xl mx-auto p-6">
+          {!showResults ? (
+            <>
+              <h1 className="text-3xl font-bold mb-6 text-[#0059ff]">Grade Stats Calculator</h1>
+              {grades.map((g, i) => (
+                <GradeInput
+                  key={i}
+                  index={i}
+                  grade={g.grade}
+                  program={g.program}
+                  boostType={g.boostType}
+                  onGradeChange={handleGradeChange}
+                  onProgramChange={handleProgramChange}
+                  onBoostChange={handleBoostChange}
+                />
+              ))}
+              <div className="mt-6 space-x-2">
+                <button onClick={handleAddGrade} className="symbolab-btn bg-blue-500 text-white px-4 py-2 rounded">Add Grade</button>
+                <button onClick={handleClearGrades} className="symbolab-btn bg-blue-500 text-white px-4 py-2 rounded">Clear All</button>
+                <button onClick={() => setShowResults(true)} className="symbolab-btn bg-blue-500 text-white px-4 py-2 rounded">Submit</button>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-bold mb-4 text-[#0059ff]">Your Stats</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Top 6 Avg</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.top6Average.toFixed(2)}%</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Total Avg</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.totalAverage.toFixed(2)}%</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Unweighted GPA</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.unweightedGPA.toFixed(2)} / 4.0</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Weighted GPA</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.weightedGPA.toFixed(2)} / 5.0</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Mode</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.mode}</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Median</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.median.toFixed(2)}%</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Highest</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.highest.toFixed(2)}%</p>
+                </div>
+                <div className="bg-white p-4 rounded-xl shadow text-center">
+                  <p className="text-gray-500 text-sm">Lowest</p>
+                  <p className="text-2xl font-semibold text-[#0059ff]">{stats.lowest.toFixed(2)}%</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowResults(false)}
+                className="symbolab-btn mt-6 bg-blue-500 text-white px-4 py-2 rounded"
+              >
+                Back
+              </button>
+            </>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>

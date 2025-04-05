@@ -1,0 +1,54 @@
+body {
+background-color: #f8fafc; /* soft gray background like Desmos */
+font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+color: #1e293b; /* Slate gray for text */
+}
+
+.symbolab-card {
+background-color: #ffffff;
+border: 1px solid #e2e8f0; /* light border */
+border-radius: 8px;
+box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06); /* subtle shadow */
+}
+
+.symbolab-input {
+border: 1px solid #cbd5e1;
+border-radius: 4px;
+padding: 0.4rem 0.6rem;
+width: 80px;
+font-size: 1rem;
+transition: border-color 0.2s;
+}
+
+.symbolab-input:focus {
+border-color: #3b82f6; /* Desmos-like blue */
+outline: none;
+}
+
+.symbolab-select {
+border: 1px solid #cbd5e1;
+border-radius: 4px;
+padding: 0.4rem 0.6rem;
+font-size: 1rem;
+transition: border-color 0.2s;
+}
+
+.symbolab-select:focus {
+border-color: #3b82f6;
+outline: none;
+}
+
+.symbolab-btn {
+background-color: #3b82f6;
+color: white;
+padding: 0.5rem 1rem;
+border-radius: 6px;
+font-weight: 500;
+font-size: 0.95rem;
+transition: background-color 0.2s;
+border: none;
+}
+
+.symbolab-btn:hover {
+background-color: #2563eb;
+}  
