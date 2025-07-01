@@ -1,54 +1,88 @@
 body {
-background-color: #f8fafc; /* soft gray background like Desmos */
-font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-color: #1e293b; /* Slate gray for text */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #e2e8f0;
+  background-color: #0f172a;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+@media (prefers-color-scheme: light) {
+  body {
+    background-color: #f8fafc;
+    color: #1e293b;
+  }
+
+  .symbolab-card {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+    box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+  }
+
+  .symbolab-input,
+  .symbolab-select {
+    border-color: #cbd5e1;
+    background-color: #ffffff;
+    color: #1e293b;
+  }
+
+  .symbolab-input:focus,
+  .symbolab-select:focus {
+    border-color: #3b82f6;
+  }
+
+  .symbolab-btn {
+    background-color: #3b82f6;
+    color: #ffffff;
+  }
+
+  .symbolab-btn:hover {
+    background-color: #2563eb;
+  }
 }
 
 .symbolab-card {
-background-color: #ffffff;
-border: 1px solid #e2e8f0; /* light border */
-border-radius: 8px;
-box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06); /* subtle shadow */
+  background-color: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s, box-shadow 0.3s;
 }
 
-.symbolab-input {
-border: 1px solid #cbd5e1;
-border-radius: 4px;
-padding: 0.4rem 0.6rem;
-width: 80px;
-font-size: 1rem;
-transition: border-color 0.2s;
-}
-
-.symbolab-input:focus {
-border-color: #3b82f6; /* Desmos-like blue */
-outline: none;
-}
-
+.symbolab-input,
 .symbolab-select {
-border: 1px solid #cbd5e1;
-border-radius: 4px;
-padding: 0.4rem 0.6rem;
-font-size: 1rem;
-transition: border-color 0.2s;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  color: #f1f5f9;
+  width: 90px;
+  font-size: 1rem;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
+.symbolab-input:focus,
 .symbolab-select:focus {
-border-color: #3b82f6;
-outline: none;
+  border-color: #3b82f6;
+  outline: none;
+  background-color: #1e293b;
 }
 
 .symbolab-btn {
-background-color: #3b82f6;
-color: white;
-padding: 0.5rem 1rem;
-border-radius: 6px;
-font-weight: 500;
-font-size: 0.95rem;
-transition: background-color 0.2s;
-border: none;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 1rem;
+  transition: background-color 0.2s, transform 0.2s;
+  border: none;
 }
 
 .symbolab-btn:hover {
-background-color: #2563eb;
-}  
+  background-color: #2563eb;
+  transform: translateY(-1px);
+}
+
+/* Optional: smooth transitions */
+* {
+  transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
