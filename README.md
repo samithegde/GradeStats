@@ -1,1 +1,1 @@
-calculate your average and other stats!
+calculate your average and other grade statistics!
